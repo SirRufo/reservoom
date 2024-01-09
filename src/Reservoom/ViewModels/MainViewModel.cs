@@ -1,20 +1,16 @@
-﻿using Reservoom.Models;
+using ReactiveUI;
+
 using Reservoom.Stores;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Reservoom.ViewModels
 {
-    public class MainViewModel : ViewModelBase 
+    public class MainViewModel : ViewModelBase
     {
         private readonly NavigationStore _navigationStore;
 
         public ViewModelBase CurrentViewModel => _navigationStore.CurrentViewModel;
 
-        public MainViewModel(NavigationStore navigationStore)
+        public MainViewModel( NavigationStore navigationStore )
         {
             _navigationStore = navigationStore;
 
@@ -23,7 +19,7 @@ namespace Reservoom.ViewModels
 
         private void OnCurrentViewModelChanged()
         {
-            OnPropertyChanged(nameof(CurrentViewModel));
+            this.RaisePropertyChanged( nameof( CurrentViewModel ) );
         }
     }
 }

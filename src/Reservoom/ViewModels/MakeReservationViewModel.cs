@@ -1,15 +1,15 @@
-﻿using Reservoom.Commands;
-using Reservoom.Models;
-using Reservoom.Services;
-using Reservoom.Stores;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
+
+using ReactiveUI;
+
+using Reservoom.Commands;
+using Reservoom.Services;
+using Reservoom.Stores;
 
 namespace Reservoom.ViewModels
 {
@@ -25,16 +25,16 @@ namespace Reservoom.ViewModels
             set
             {
                 _username = value;
-                OnPropertyChanged(nameof(Username));
+                this.RaisePropertyChanged( nameof( Username ) );
 
-                ClearErrors(nameof(Username));
+                ClearErrors( nameof( Username ) );
 
-                if(!HasUsername)
+                if ( !HasUsername )
                 {
-                    AddError("Username cannot be empty.", nameof(Username));
+                    AddError( "Username cannot be empty.", nameof( Username ) );
                 }
 
-                OnPropertyChanged(nameof(CanCreateReservation));
+                this.RaisePropertyChanged( nameof( CanCreateReservation ) );
             }
         }
 
@@ -48,16 +48,16 @@ namespace Reservoom.ViewModels
             set
             {
                 _floorNumber = value;
-                OnPropertyChanged(nameof(FloorNumber));
+                this.RaisePropertyChanged( nameof( FloorNumber ) );
 
-                ClearErrors(nameof(FloorNumber));
+                ClearErrors( nameof( FloorNumber ) );
 
-                if (!HasFloorNumberGreaterThanZero)
+                if ( !HasFloorNumberGreaterThanZero )
                 {
-                    AddError("Floor number must be greater than zero.", nameof(FloorNumber));
+                    AddError( "Floor number must be greater than zero.", nameof( FloorNumber ) );
                 }
 
-                OnPropertyChanged(nameof(CanCreateReservation));
+                this.RaisePropertyChanged( nameof( CanCreateReservation ) );
             }
         }
 
@@ -71,11 +71,11 @@ namespace Reservoom.ViewModels
             set
             {
                 _roomNumber = value;
-                OnPropertyChanged(nameof(RoomNumber));
+                this.RaisePropertyChanged( nameof( RoomNumber ) );
             }
         }
 
-        private DateTime _startDate = new DateTime(2021, 1, 1);
+        private DateTime _startDate = new DateTime( 2021, 1, 1 );
         public DateTime StartDate
         {
             get
@@ -85,21 +85,21 @@ namespace Reservoom.ViewModels
             set
             {
                 _startDate = value;
-                OnPropertyChanged(nameof(StartDate));
+                this.RaisePropertyChanged( nameof( StartDate ) );
 
-                ClearErrors(nameof(StartDate));
-                ClearErrors(nameof(EndDate));
+                ClearErrors( nameof( StartDate ) );
+                ClearErrors( nameof( EndDate ) );
 
-                if (!HasStartDateBeforeEndDate)
+                if ( !HasStartDateBeforeEndDate )
                 {
-                    AddError("The start date cannot be after the end date.", nameof(StartDate));
+                    AddError( "The start date cannot be after the end date.", nameof( StartDate ) );
                 }
-                
-                OnPropertyChanged(nameof(CanCreateReservation));
+
+                this.RaisePropertyChanged( nameof( CanCreateReservation ) );
             }
         }
 
-        private DateTime _endDate = new DateTime(2021, 1, 8);
+        private DateTime _endDate = new DateTime( 2021, 1, 8 );
         public DateTime EndDate
         {
             get
@@ -109,17 +109,17 @@ namespace Reservoom.ViewModels
             set
             {
                 _endDate = value;
-                OnPropertyChanged(nameof(EndDate));
+                this.RaisePropertyChanged( nameof( EndDate ) );
 
-                ClearErrors(nameof(StartDate));
-                ClearErrors(nameof(EndDate));
+                ClearErrors( nameof( StartDate ) );
+                ClearErrors( nameof( EndDate ) );
 
-                if (!HasStartDateBeforeEndDate)
+                if ( !HasStartDateBeforeEndDate )
                 {
-                    AddError("The end date cannot be before the start date.", nameof(EndDate));
+                    AddError( "The end date cannot be before the start date.", nameof( EndDate ) );
                 }
 
-                OnPropertyChanged(nameof(CanCreateReservation));
+                this.RaisePropertyChanged( nameof( CanCreateReservation ) );
             }
         }
 
@@ -129,7 +129,7 @@ namespace Reservoom.ViewModels
             HasStartDateBeforeEndDate &&
             !HasErrors;
 
-        private bool HasUsername => !string.IsNullOrEmpty(Username);
+        private bool HasUsername => !string.IsNullOrEmpty( Username );
         private bool HasFloorNumberGreaterThanZero => FloorNumber > 0;
         private bool HasStartDateBeforeEndDate => StartDate < EndDate;
 
@@ -143,13 +143,13 @@ namespace Reservoom.ViewModels
             set
             {
                 _submitErrorMessage = value;
-                OnPropertyChanged(nameof(SubmitErrorMessage));
+                this.RaisePropertyChanged( nameof( SubmitErrorMessage ) );
 
-                OnPropertyChanged(nameof(HasSubmitErrorMessage));
+                this.RaisePropertyChanged( nameof( HasSubmitErrorMessage ) );
             }
         }
 
-        public bool HasSubmitErrorMessage => !string.IsNullOrEmpty(SubmitErrorMessage);
+        public bool HasSubmitErrorMessage => !string.IsNullOrEmpty( SubmitErrorMessage );
 
         private bool _isSubmitting;
         public bool IsSubmitting
@@ -161,7 +161,7 @@ namespace Reservoom.ViewModels
             set
             {
                 _isSubmitting = value;
-                OnPropertyChanged(nameof(IsSubmitting));
+                this.RaisePropertyChanged( nameof( IsSubmitting ) );
             }
         }
 
@@ -174,41 +174,41 @@ namespace Reservoom.ViewModels
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
-        public MakeReservationViewModel(HotelStore hotelStore, NavigationService<ReservationListingViewModel> reservationViewNavigationService)
+        public MakeReservationViewModel( HotelStore hotelStore, NavigationService<ReservationListingViewModel> reservationViewNavigationService )
         {
-            SubmitCommand = new MakeReservationCommand(this, hotelStore, reservationViewNavigationService);
-            CancelCommand = new NavigateCommand<ReservationListingViewModel>(reservationViewNavigationService);
+            SubmitCommand = new MakeReservationCommand( this, hotelStore, reservationViewNavigationService );
+            CancelCommand = new NavigateCommand<ReservationListingViewModel>( reservationViewNavigationService );
 
             _propertyNameToErrorsDictionary = new Dictionary<string, List<string>>();
         }
 
-        public IEnumerable GetErrors(string propertyName)
+        public IEnumerable GetErrors( string propertyName )
         {
-            return _propertyNameToErrorsDictionary.GetValueOrDefault(propertyName, new List<string>());
+            return _propertyNameToErrorsDictionary.GetValueOrDefault( propertyName, new List<string>() );
         }
 
-        private void AddError(string errorMessage, string propertyName)
+        private void AddError( string errorMessage, string propertyName )
         {
-            if (!_propertyNameToErrorsDictionary.ContainsKey(propertyName))
+            if ( !_propertyNameToErrorsDictionary.ContainsKey( propertyName ) )
             {
-                _propertyNameToErrorsDictionary.Add(propertyName, new List<string>());
+                _propertyNameToErrorsDictionary.Add( propertyName, new List<string>() );
             }
 
-            _propertyNameToErrorsDictionary[propertyName].Add(errorMessage);
+            _propertyNameToErrorsDictionary[propertyName].Add( errorMessage );
 
-            OnErrorsChanged(propertyName);
+            OnErrorsChanged( propertyName );
         }
 
-        private void ClearErrors(string propertyName)
+        private void ClearErrors( string propertyName )
         {
-            _propertyNameToErrorsDictionary.Remove(propertyName);
+            _propertyNameToErrorsDictionary.Remove( propertyName );
 
-            OnErrorsChanged(propertyName);
+            OnErrorsChanged( propertyName );
         }
 
-        private void OnErrorsChanged(string propertyName)
+        private void OnErrorsChanged( string propertyName )
         {
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            ErrorsChanged?.Invoke( this, new DataErrorsChangedEventArgs( propertyName ) );
         }
     }
 }

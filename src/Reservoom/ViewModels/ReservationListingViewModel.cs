@@ -1,15 +1,16 @@
-﻿using Reservoom.Commands;
-using Reservoom.Models;
-using Reservoom.Services;
-using Reservoom.Stores;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
+
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
+using Reservoom.Commands;
+using Reservoom.Models;
+using Reservoom.Services;
+using Reservoom.Stores;
 
 namespace Reservoom.ViewModels
 {
@@ -23,48 +24,22 @@ namespace Reservoom.ViewModels
 
         public bool HasReservations => _reservations.Any();
 
-        private string _errorMessage;
-        public string ErrorMessage
-        {
-            get
-            {
-                return _errorMessage;
-            }
-            set
-            {
-                _errorMessage = value;
-                OnPropertyChanged(nameof(ErrorMessage));
+        [Reactive] public string ErrorMessage { get; set; }
 
-                OnPropertyChanged(nameof(HasErrorMessage));
-            }
-        }
+        public bool HasErrorMessage => !string.IsNullOrEmpty( ErrorMessage );
 
-        public bool HasErrorMessage => !string.IsNullOrEmpty(ErrorMessage);
-
-        private bool _isLoading;
-        public bool IsLoading
-        {
-            get
-            {
-                return _isLoading;
-            }
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged(nameof(IsLoading));
-            }
-        }
+        [Reactive] public bool IsLoading { get; set; }
 
         public ICommand LoadReservationsCommand { get; }
         public ICommand MakeReservationCommand { get; }
 
-        public ReservationListingViewModel(HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService)
+        public ReservationListingViewModel( HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService )
         {
             _hotelStore = hotelStore;
             _reservations = new ObservableCollection<ReservationViewModel>();
 
-            LoadReservationsCommand = new LoadReservationsCommand(this, hotelStore);
-            MakeReservationCommand = new NavigateCommand<MakeReservationViewModel>(makeReservationNavigationService);
+            LoadReservationsCommand = new LoadReservationsCommand( this, hotelStore );
+            MakeReservationCommand = new NavigateCommand<MakeReservationViewModel>( makeReservationNavigationService );
 
             _hotelStore.ReservationMade += OnReservationMode;
             _reservations.CollectionChanged += OnReservationsChanged;
@@ -76,35 +51,35 @@ namespace Reservoom.ViewModels
             base.Dispose();
         }
 
-        private void OnReservationMode(Reservation reservation)
+        private void OnReservationMode( Reservation reservation )
         {
-            ReservationViewModel reservationViewModel = new ReservationViewModel(reservation);
-            _reservations.Add(reservationViewModel);
+            ReservationViewModel reservationViewModel = new ReservationViewModel( reservation );
+            _reservations.Add( reservationViewModel );
         }
 
-        public static ReservationListingViewModel LoadViewModel(HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService)
+        public static ReservationListingViewModel LoadViewModel( HotelStore hotelStore, NavigationService<MakeReservationViewModel> makeReservationNavigationService )
         {
-            ReservationListingViewModel viewModel = new ReservationListingViewModel(hotelStore, makeReservationNavigationService);
+            ReservationListingViewModel viewModel = new ReservationListingViewModel( hotelStore, makeReservationNavigationService );
 
-            viewModel.LoadReservationsCommand.Execute(null);
+            viewModel.LoadReservationsCommand.Execute( null );
 
             return viewModel;
         }
 
-        public void UpdateReservations(IEnumerable<Reservation> reservations)
+        public void UpdateReservations( IEnumerable<Reservation> reservations )
         {
             _reservations.Clear();
 
-            foreach (Reservation reservation in reservations)
+            foreach ( Reservation reservation in reservations )
             {
-                ReservationViewModel reservationViewModel = new ReservationViewModel(reservation);
-                _reservations.Add(reservationViewModel);
+                ReservationViewModel reservationViewModel = new ReservationViewModel( reservation );
+                _reservations.Add( reservationViewModel );
             }
         }
 
-        private void OnReservationsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnReservationsChanged( object sender, NotifyCollectionChangedEventArgs e )
         {
-            OnPropertyChanged(nameof(HasReservations));
+            this.RaisePropertyChanged( nameof( HasReservations ) );
         }
     }
 }
